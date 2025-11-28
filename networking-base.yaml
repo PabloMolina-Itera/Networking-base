@@ -1,0 +1,495 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Deploy a NLB,'
+
+Parameters:
+  CostCenter:
+    Type: String
+    Default: Operations
+  Application:
+    Type: String
+    Default: TobiroDigital
+  Project:
+    Type: String
+    Default: tiendadp
+
+Resources:
+  # Security Group
+  SecurityGroupNLB:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Security Group for NLB"
+      VpcId: !ImportValue networking-base-VPCID
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '8888'
+          ToPort: '8888'
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: '8100'
+          ToPort: '8100'
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: '8200'
+          ToPort: '8200'
+          CidrIp: '0.0.0.0/0'
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join:
+            - '-'
+            - - Ref: Project
+              - sg-nlb
+        - Key: CostCenter
+          Value:
+            Ref: CostCenter
+        - Key: Application
+          Value:
+            Ref: Application
+        - Key: Project
+          Value:
+            Ref: Project                
+
+
+  # Public Network Load Balancer (NLB)
+  NetworkLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: 
+        Fn::Join:
+            - '-'
+            - - Ref: Project
+              - nlb-app
+      Subnets:
+        - !ImportValue networking-base-PublicSub1
+        - !ImportValue networking-base-PublicSub2
+      SecurityGroups: 
+        - !Ref SecurityGroupNLB
+      Scheme: internet-facing
+      Type: network
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join:
+            - '-'
+            - - Ref: Project
+              - nlb-app
+        - Key: CostCenter
+          Value:
+            Ref: CostCenter
+        - Key: Application
+          Value:
+            Ref: Application
+        - Key: Project
+          Value:
+            Ref: Project           
+
+  # Target Group for RDP (Port 8888)
+  RdpTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: rdp-tg-3389
+      Protocol: TCP
+      Port: 3389
+      VpcId: !ImportValue networking-base-VPCID
+      HealthCheckProtocol: TCP
+      HealthCheckPort: '3389'
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      UnhealthyThresholdCount: 3
+      HealthyThresholdCount: 3
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join:
+            - '-'
+            - - Ref: Project
+              - tg-3389
+        - Key: CostCenter
+          Value:
+            Ref: CostCenter
+        - Key: Application
+          Value:
+            Ref: Application
+        - Key: Project
+          Value:
+            Ref: Project       
+
+  # Target Group for ICG Remote 8100
+  IcgRemoteTargetGroup8100:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: icg-remote-tg-8100
+      Protocol: TCP
+      Port: 8100
+      VpcId: !ImportValue networking-base-VPCID
+      HealthCheckProtocol: TCP
+      HealthCheckPort: '8100'
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      UnhealthyThresholdCount: 3
+      HealthyThresholdCount: 3
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join:
+            - '-'
+            - - Ref: Project
+              - tg-8100
+        - Key: CostCenter
+          Value:
+            Ref: CostCenter
+        - Key: Application
+          Value:
+            Ref: Application
+        - Key: Project
+          Value:
+            Ref: Project        
+
+  # Target Group for ICG Remote 8200
+  IcgRemoteTargetGroup8200:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: icg-remote-tg-8200
+      Protocol: TCP
+      Port: 8200
+      VpcId: !ImportValue networking-base-VPCID
+      HealthCheckProtocol: TCP
+      HealthCheckPort: '8200'
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      UnhealthyThresholdCount: 3
+      HealthyThresholdCount: 3
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join:
+            - '-'
+            - - Ref: Project
+              - tg-8200
+        - Key: CostCenter
+          Value:
+            Ref: CostCenter
+        - Key: Application
+          Value:
+            Ref: Application
+        - Key: Project
+          Value:
+            Ref: Project    
+
+  # Target Group for ICG Remote 8300
+  IcgRemoteTargetGroup8300:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: icg-remote-tg-8300
+      Protocol: TCP
+      Port: 8300
+      VpcId: !ImportValue networking-base-VPCID
+      HealthCheckProtocol: TCP
+      HealthCheckPort: '8300'
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      UnhealthyThresholdCount: 3
+      HealthyThresholdCount: 3
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join:
+            - '-'
+            - - Ref: Project
+              - tg-8300
+        - Key: CostCenter
+          Value:
+            Ref: CostCenter
+        - Key: Application
+          Value:
+            Ref: Application
+        - Key: Project
+          Value:
+            Ref: Project   
+
+  # Target Group for ICG Remote 8400	
+  IcgRemoteTargetGroup8400:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: icg-remote-tg-8400
+      Protocol: TCP
+      Port: 8400
+      VpcId: !ImportValue networking-base-VPCID
+      HealthCheckProtocol: TCP
+      HealthCheckPort: '8400'
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      UnhealthyThresholdCount: 3
+      HealthyThresholdCount: 3
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join:
+            - '-'
+            - - Ref: Project
+              - tg-8400
+        - Key: CostCenter
+          Value:
+            Ref: CostCenter
+        - Key: Application
+          Value:
+            Ref: Application
+        - Key: Project
+          Value:
+            Ref: Project      
+
+  # Target Group for ICG Remote 8700		
+  IcgRemoteTargetGroup8700:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: icg-remote-tg-8700
+      Protocol: TCP
+      Port: 8700
+      VpcId: !ImportValue networking-base-VPCID
+      HealthCheckProtocol: TCP
+      HealthCheckPort: '8700'
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      UnhealthyThresholdCount: 3
+      HealthyThresholdCount: 3
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join:
+            - '-'
+            - - Ref: Project
+              - tg-8700
+        - Key: CostCenter
+          Value:
+            Ref: CostCenter
+        - Key: Application
+          Value:
+            Ref: Application
+        - Key: Project
+          Value:
+            Ref: Project  
+
+  # Target Group for ICG Remote 9191			
+  IcgRemoteTargetGroup9191:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: icg-remote-tg-9191
+      Protocol: TCP
+      Port: 9191
+      VpcId: !ImportValue networking-base-VPCID
+      HealthCheckProtocol: TCP
+      HealthCheckPort: '9191'
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      UnhealthyThresholdCount: 3
+      HealthyThresholdCount: 3
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join:
+            - '-'
+            - - Ref: Project
+              - tg-9191
+        - Key: CostCenter
+          Value:
+            Ref: CostCenter
+        - Key: Application
+          Value:
+            Ref: Application
+        - Key: Project
+          Value:
+            Ref: Project                                   
+
+  # Listener for NLB
+  NlbListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref RdpTargetGroup
+      LoadBalancerArn: !Ref NetworkLoadBalancer
+      Port: 8888
+      Protocol: TCP
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join:
+              - '-'
+              - - Ref: Project
+                - ls-8888
+        - Key: CostCenter
+          Value:
+            Ref: CostCenter
+        - Key: Application
+          Value:
+            Ref: Application
+        - Key: Project
+          Value:
+            Ref: Project 
+
+  NlbListenerICG8100:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref IcgRemoteTargetGroup8100
+      LoadBalancerArn: !Ref NetworkLoadBalancer
+      Port: 8100
+      Protocol: TCP
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join:
+              - '-'
+              - - Ref: Project
+                - ls-8100
+        - Key: CostCenter
+          Value:
+            Ref: CostCenter
+        - Key: Application
+          Value:
+            Ref: Application
+        - Key: Project
+          Value:
+            Ref: Project 
+
+  NlbListenerICG8200:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref IcgRemoteTargetGroup8200
+      LoadBalancerArn: !Ref NetworkLoadBalancer
+      Port: 8200
+      Protocol: TCP
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join:
+              - '-'
+              - - Ref: Project
+                - ls-8200
+        - Key: CostCenter
+          Value:
+            Ref: CostCenter
+        - Key: Application
+          Value:
+            Ref: Application
+        - Key: Project
+          Value:
+            Ref: Project 
+
+  NlbListenerICG8300:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref IcgRemoteTargetGroup8300
+      LoadBalancerArn: !Ref NetworkLoadBalancer
+      Port: 8300
+      Protocol: TCP
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join:
+              - '-'
+              - - Ref: Project
+                - ls-8300
+        - Key: CostCenter
+          Value:
+            Ref: CostCenter
+        - Key: Application
+          Value:
+            Ref: Application
+        - Key: Project
+          Value:
+            Ref: Project 
+            
+  NlbListenerICG8400:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref IcgRemoteTargetGroup8400
+      LoadBalancerArn: !Ref NetworkLoadBalancer
+      Port: 8400
+      Protocol: TCP
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join:
+              - '-'
+              - - Ref: Project
+                - ls-8400
+        - Key: CostCenter
+          Value:
+            Ref: CostCenter
+        - Key: Application
+          Value:
+            Ref: Application
+        - Key: Project
+          Value:
+            Ref: Project 
+
+  NlbListenerICG8700:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref IcgRemoteTargetGroup8700
+      LoadBalancerArn: !Ref NetworkLoadBalancer
+      Port: 8700
+      Protocol: TCP
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join:
+              - '-'
+              - - Ref: Project
+                - ls-8700
+        - Key: CostCenter
+          Value:
+            Ref: CostCenter
+        - Key: Application
+          Value:
+            Ref: Application
+        - Key: Project
+          Value:
+            Ref: Project 
+
+  NlbListenerICG9191:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref IcgRemoteTargetGroup9191
+      LoadBalancerArn: !Ref NetworkLoadBalancer
+      Port: 9191
+      Protocol: TCP
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join:
+              - '-'
+              - - Ref: Project
+                - ls-9191
+        - Key: CostCenter
+          Value:
+            Ref: CostCenter
+        - Key: Application
+          Value:
+            Ref: Application
+        - Key: Project
+          Value:
+            Ref: Project                                                 
+
+Outputs:
+  NlbDNSName:
+    Description: "DNS name of the NLB"
+    Value: !GetAtt NetworkLoadBalancer.DNSName
+
+  SecurityGroupNLB:
+    Description: ID Security Group de la instancia EC2
+    Value: !Ref SecurityGroupNLB
+    Export:
+      Name: !Sub "${AWS::StackName}-securitygroup-nlb"             
